@@ -3,134 +3,107 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Astrobot Booking Form</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      padding: 1.5rem;
-      max-width: 600px;
-      margin: auto;
-    }
-    label {
-      display: block;
-      margin-top: 1rem;
-      font-weight: bold;
-    }
-    input, select, textarea {
-      width: 100%;
-      padding: 0.75rem;
-      margin-top: 0.25rem;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-    button {
-      margin-top: 2rem;
-      padding: 0.75rem 1.25rem;
-      background: #111;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      font-size: 1rem;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #333;
-    }
-  </style>
+  <title>Astrology Booking Form</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-gray-50 text-gray-900">
+  <div class="max-w-4xl mx-auto px-4 py-10">
+    <h1 class="text-2xl font-semibold text-center mb-8">🔮 Book Your Astrology Consultation</h1>
 
-  <h2>🔮 Book Your Astrology Consultation</h2>
+    <form action="https://YOUR_WEBHOOK_URL_HERE" method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded-lg shadow-md space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">Full Name</label>
+          <input type="text" name="Full Name" required class="w-full p-2 border rounded-md" placeholder="Your full name" />
+        </div>
 
-  <form id="bookingForm" method="POST" enctype="multipart/form-data">
-    
-    <!-- Hidden Session ID -->
-    <input type="hidden" name="sessionID" id="sessionID" value="" />
+        <div>
+          <label class="block text-sm font-medium mb-1">Phone Number</label>
+          <input type="tel" name="Phone Number" required class="w-full p-2 border rounded-md" placeholder="For communications" />
+        </div>
 
-    <!-- Name (optional) -->
-    <label for="userName">Your Name</label>
-    <input type="text" name="userName" id="userName" placeholder="e.g. Likhith Swaroop" />
+        <div>
+          <label class="block text-sm font-medium mb-1">Email</label>
+          <input type="email" name="Email" class="w-full p-2 border rounded-md" placeholder="your@email.com" />
+        </div>
 
-    <!-- Slot Selection (to be auto-filled in Step 3) -->
-    <label for="slot">Select a Time Slot</label>
-    <select name="slot" id="slot">
-      <option value="">-- Loading available slots... --</option>
-    </select>
+        <div>
+          <label class="block text-sm font-medium mb-1">Date of Birth</label>
+          <input type="date" name="Date of Birth" required class="w-full p-2 border rounded-md" />
+        </div>
 
-    <!-- Topic to Discuss -->
-    <label for="topic">What would you like to discuss?</label>
-    <textarea name="topic" id="topic" rows="3" placeholder="Enter your topic here..."></textarea>
+        <div>
+          <label class="block text-sm font-medium mb-1">Birth Time (e.g. 04:30 PM)</label>
+          <input type="text" name="Birth Time" required class="w-full p-2 border rounded-md" placeholder="hh:mm AM/PM" />
+        </div>
 
-    <!-- File Upload -->
-    <label for="screenshot">Upload Payment Screenshot</label>
-    <input type="file" name="screenshot" id="screenshot" accept="image/*" required />
+        <div>
+          <label class="block text-sm font-medium mb-1">Place of Birth</label>
+          <input type="text" name="Place of Birth" required class="w-full p-2 border rounded-md" />
+        </div>
 
-    <button type="submit">Submit Booking</button>
-  </form>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium mb-1">Select a Time Slot</label>
+          <select name="Book Slot" id="slotDropdown" required class="w-full p-2 border rounded-md">
+            <option value="">-- Loading available slots... --</option>
+          </select>
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium mb-1">Topics to Discuss</label>
+          <textarea name="Topics to Discuss" required rows="4" placeholder="Briefly describe what you'd like to discuss..." class="w-full p-2 border rounded-md"></textarea>
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium mb-1">Upload Payment Screenshot</label>
+          <input type="file" name="Payment Screenshot" required accept="image/*" class="w-full"/>
+          <p class="text-xs text-gray-500 mt-1">Accepted formats: PNG, JPG. Max size: 2MB.</p>
+        </div>
+
+        <!-- Hidden sessionID input -->
+        <input type="hidden" name="SessionID" id="sessionIdInput" />
+
+      </div>
+
+      <div class="pt-4">
+        <button type="submit" class="w-full bg-black text-white py-2 rounded-md hover:bg-gray-800">
+          Submit Booking
+        </button>
+      </div>
+    </form>
+  </div>
 
   <script>
-    // 1. Extract sessionID from query string
+    // Autofill sessionID from URL param
     const urlParams = new URLSearchParams(window.location.search);
-    const sessionID = urlParams.get('sessionID');
-    if (sessionID) {
-      document.getElementById('sessionID').value = sessionID;
+    const sessionId = urlParams.get("sessionID");
+    if (sessionId) {
+      document.getElementById("sessionIdInput").value = sessionId;
     }
 
-    // 2. Replace with your actual n8n webhook URL
-    const webhookUrl = 'https://n8n.example.com/webhook/astro-form'; // Replace in Step 2
-
-    // 3. On form submit, send form data to n8n webhook
-    document.getElementById('bookingForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const form = e.target;
-      const formData = new FormData(form);
+    // Fetch available slots from Airtable (we’ll wire this next)
+    async function fetchSlots() {
+      const dropdown = document.getElementById("slotDropdown");
+      dropdown.innerHTML = `<option>Loading...</option>`;
 
       try {
-        const res = await fetch(webhookUrl, {
-          method: 'POST',
-          body: formData
-        });
+        const res = await fetch("https://YOUR_PROXY_API_OR_BACKEND.com/slots");
+        const data = await res.json();
 
-        if (res.ok) {
-          alert('✅ Booking submitted successfully!');
-          form.reset();
-        } else {
-          alert('⚠️ Failed to submit. Please try again.');
-        }
+        dropdown.innerHTML = `<option value="">-- Select a Slot --</option>`;
+        data.forEach(slot => {
+          const opt = document.createElement("option");
+          opt.value = slot.label;
+          opt.textContent = slot.label;
+          dropdown.appendChild(opt);
+        });
       } catch (err) {
-        alert('⚠️ Error connecting to server.');
+        dropdown.innerHTML = `<option value="">Failed to load slots</option>`;
         console.error(err);
       }
-    });
-
-    // 4. Fetch available slots dynamically (Step 3)
-    async function loadSlots() {
-      const slotSelect = document.getElementById('slot');
-      try {
-        const res = await fetch(`https://n8n.example.com/webhook/astro-slots?sessionID=${sessionID}`);
-        const data = await res.json();
-        slotSelect.innerHTML = '';
-
-        if (data.length === 0) {
-          slotSelect.innerHTML = `<option value="">No slots available</option>`;
-          return;
-        }
-
-        data.forEach(slot => {
-          const opt = document.createElement('option');
-          opt.value = slot.slotID; // We'll define this in Step 3
-          opt.textContent = slot.label;
-          slotSelect.appendChild(opt);
-        });
-      } catch (err) {
-        slotSelect.innerHTML = `<option value="">Failed to load slots</option>`;
-      }
     }
 
-    if (sessionID) {
-      loadSlots();
-    }
+    fetchSlots();
   </script>
-
 </body>
 </html>
