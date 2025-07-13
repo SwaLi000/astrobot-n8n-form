@@ -109,7 +109,7 @@
       <h2>Book Your Astrology Consultation</h2>
 
       <form
-        action="https://bot.tinkerwithswaroop.live/webhook/form"
+        action="https://bot.tinkerwithswaroop.live/webhook-test/form"
         method="POST"
         enctype="multipart/form-data"
       >
@@ -219,5 +219,18 @@
         </div>
       </form>
     </div>
+
+    <script>
+      // Autofill fields from URL query parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const sessionID = urlParams.get("user_sessionID") || "";
+      const waNumber = urlParams.get("user_wa_number") || "";
+      const userName = urlParams.get("user_name") || "";
+
+      // Set values to the form inputs
+      document.querySelector('input[name="SessionID"]').value = sessionID;
+      document.querySelector('input[name="Phone Number"]').value = waNumber;
+      document.querySelector('input[name="Full Name"]').value = userName;
+    </script>
   </body>
 </html>
