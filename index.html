@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Astrobot Booking Form</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 1.5rem;
+      max-width: 600px;
+      margin: auto;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 0.75rem;
+      margin-top: 0.25rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      margin-top: 2rem;
+      padding: 0.75rem 1.25rem;
+      background: #111;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #333;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>🔮 Book Your Astrology Consultation</h2>
+
+  <form id="bookingForm" method="POST" enctype="multipart/form-data">
+    
+    <!-- Hidden Session ID -->
+    <input type="hidden" name="sessionID" id="sessionID" value="" />
+
+    <!-- Name (optional) -->
+    <label for="userName">Your Name</label>
+    <input type="text" name="userName" id="userName" placeholder="e.g. Likhith Swaroop" />
+
+    <!-- Slot Selection (to be auto-filled in Step 3) -->
+    <label for="slot">Select a Time Slot</label>
+    <select name="slot" id="slot">
+      <option value="">-- Loading available slots... --</option>
+    </select>
+
+    <!-- Topic to Discuss -->
+    <label for="topic">What would you like to discuss?</label>
+    <textarea name="topic" id="topic" rows="3" placeholder="Enter your topic here..."></textarea>
+
+    <!-- File Upload -->
+    <label for="screenshot">Upload Payment Screenshot</label>
+    <input type="file" name="screenshot" id="screenshot" accept="image/*" required />
+
+    <button type="submit">Submit Booking</button>
+  </form>
+
+  <script>
+    // 1. Extract sessionID from query string
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionID = urlParams.get('sessionID');
+    if (sessionID) {
+      document.getElementById('sessionID').value = sessionID;
+    }
+
+    // 2. Replace with your actual n8n webhook URL
+    const webhookUrl = 'https://n8n.example.com/webhook/astro-form'; // Replace in Step 2
+
+    // 3. On form submit, send form data to n8n webhook
+    document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+
+      try {
+        const res = await fetch(webhookUrl, {
+          method: 'POST',
+          body: formData
+        });
+
+        if (res.ok) {
+          alert('✅ Booking submitted successfully!');
+          form.reset();
+        } else {
+          alert('⚠️ Failed to submit. Please try again.');
+        }
+      } catch (err) {
+        alert('⚠️ Error connecting to server.');
+        console.error(err);
+      }
+    });
+
+    // 4. Fetch available slots dynamically (Step 3)
+    async function loadSlots() {
+      const slotSelect = document.getElementById('slot');
+      try {
+        const res = await fetch(`https://n8n.example.com/webhook/astro-slots?sessionID=${sessionID}`);
+        const data = await res.json();
+        slotSelect.innerHTML = '';
+
+        if (data.length === 0) {
+          slotSelect.innerHTML = `<option value="">No slots available</option>`;
+          return;
+        }
+
+        data.forEach(slot => {
+          const opt = document.createElement('option');
+          opt.value = slot.slotID; // We'll define this in Step 3
+          opt.textContent = slot.label;
+          slotSelect.appendChild(opt);
+        });
+      } catch (err) {
+        slotSelect.innerHTML = `<option value="">Failed to load slots</option>`;
+      }
+    }
+
+    if (sessionID) {
+      loadSlots();
+    }
+  </script>
+
+</body>
+</html>
