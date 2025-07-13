@@ -109,7 +109,7 @@
       <h2>Book Your Astrology Consultation</h2>
 
       <form
-        action="https://bot.tinkerwithswaroop.live/webhook-test/form"
+        action="https://bot.tinkerwithswaroop.live/webhook/form"
         method="POST"
         enctype="multipart/form-data"
       >
@@ -165,6 +165,8 @@
         </div>
 
         <script>
+          const slotLabelMap = {}; // Maps record ID → human label
+
           async function loadAvailableSlots() {
             try {
               const response = await fetch(
@@ -173,23 +175,44 @@
               const data = await response.json();
               const slotSelect = document.getElementById("BookSlot");
 
-              slotSelect.innerHTML = '<option value="">Select a slot</option>'; // Clear existing
+              slotSelect.innerHTML = '<option value="">Select a slot</option>';
 
               data.forEach((slot) => {
                 const option = document.createElement("option");
-                option.value = slot.value;
-                option.textContent = slot.value;
+                option.value = slot.value; // recordId
+                option.textContent = slot.label; // human-readable slot label
+                slotLabelMap[slot.value] = slot.label;
                 slotSelect.appendChild(option);
               });
             } catch (err) {
               console.error("Failed to load slots:", err);
-              const slotSelect = document.getElementById("BookSlot");
-              slotSelect.innerHTML =
+              document.getElementById("BookSlot").innerHTML =
                 '<option value="">No slots available</option>';
             }
           }
 
-          // Load slots on page load
+          // On form ready
+          document.addEventListener("DOMContentLoaded", function () {
+            const form = document.querySelector("form");
+
+            // Create a hidden field for the readable slot label
+            const hiddenReadable = document.createElement("input");
+            hiddenReadable.type = "hidden";
+            hiddenReadable.name = "Readable Slot";
+            hiddenReadable.id = "ReadableSlot";
+            form.appendChild(hiddenReadable);
+
+            // When slot is selected, update hidden field
+            document
+              .getElementById("BookSlot")
+              .addEventListener("change", (e) => {
+                const selectedId = e.target.value;
+                document.getElementById("ReadableSlot").value =
+                  slotLabelMap[selectedId] || "";
+              });
+          });
+
+          // Load slots
           window.addEventListener("DOMContentLoaded", loadAvailableSlots);
         </script>
 
