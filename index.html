@@ -3,107 +3,180 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Astrology Booking Form</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-50 text-gray-900">
-  <div class="max-w-4xl mx-auto px-4 py-10">
-    <h1 class="text-2xl font-semibold text-center mb-8">🔮 Book Your Astrology Consultation</h1>
-
-    <form action="https://YOUR_WEBHOOK_URL_HERE" method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded-lg shadow-md space-y-6">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-medium mb-1">Full Name</label>
-          <input type="text" name="Full Name" required class="w-full p-2 border rounded-md" placeholder="Your full name" />
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium mb-1">Phone Number</label>
-          <input type="tel" name="Phone Number" required class="w-full p-2 border rounded-md" placeholder="For communications" />
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium mb-1">Email</label>
-          <input type="email" name="Email" class="w-full p-2 border rounded-md" placeholder="your@email.com" />
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium mb-1">Date of Birth</label>
-          <input type="date" name="Date of Birth" required class="w-full p-2 border rounded-md" />
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium mb-1">Birth Time (e.g. 04:30 PM)</label>
-          <input type="text" name="Birth Time" required class="w-full p-2 border rounded-md" placeholder="hh:mm AM/PM" />
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium mb-1">Place of Birth</label>
-          <input type="text" name="Place of Birth" required class="w-full p-2 border rounded-md" />
-        </div>
-
-        <div class="md:col-span-2">
-          <label class="block text-sm font-medium mb-1">Select a Time Slot</label>
-          <select name="Book Slot" id="slotDropdown" required class="w-full p-2 border rounded-md">
-            <option value="">-- Loading available slots... --</option>
-          </select>
-        </div>
-
-        <div class="md:col-span-2">
-          <label class="block text-sm font-medium mb-1">Topics to Discuss</label>
-          <textarea name="Topics to Discuss" required rows="4" placeholder="Briefly describe what you'd like to discuss..." class="w-full p-2 border rounded-md"></textarea>
-        </div>
-
-        <div class="md:col-span-2">
-          <label class="block text-sm font-medium mb-1">Upload Payment Screenshot</label>
-          <input type="file" name="Payment Screenshot" required accept="image/*" class="w-full"/>
-          <p class="text-xs text-gray-500 mt-1">Accepted formats: PNG, JPG. Max size: 2MB.</p>
-        </div>
-
-        <!-- Hidden sessionID input -->
-        <input type="hidden" name="SessionID" id="sessionIdInput" />
-
-      </div>
-
-      <div class="pt-4">
-        <button type="submit" class="w-full bg-black text-white py-2 rounded-md hover:bg-gray-800">
-          Submit Booking
-        </button>
-      </div>
-    </form>
-  </div>
-
-  <script>
-    // Autofill sessionID from URL param
-    const urlParams = new URLSearchParams(window.location.search);
-    const sessionId = urlParams.get("sessionID");
-    if (sessionId) {
-      document.getElementById("sessionIdInput").value = sessionId;
+  <title>Astrology Consultation Booking</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fafafa;
+      margin: 0;
+      padding: 0;
     }
 
-    // Fetch available slots from Airtable (we’ll wire this next)
-    async function fetchSlots() {
-      const dropdown = document.getElementById("slotDropdown");
-      dropdown.innerHTML = `<option>Loading...</option>`;
+    form {
+      max-width: 800px;
+      margin: 2rem auto;
+      background-color: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
 
-      try {
-        const res = await fetch("https://YOUR_PROXY_API_OR_BACKEND.com/slots");
-        const data = await res.json();
+    h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
 
-        dropdown.innerHTML = `<option value="">-- Select a Slot --</option>`;
-        data.forEach(slot => {
-          const opt = document.createElement("option");
-          opt.value = slot.label;
-          opt.textContent = slot.label;
-          dropdown.appendChild(opt);
-        });
-      } catch (err) {
-        dropdown.innerHTML = `<option value="">Failed to load slots</option>`;
-        console.error(err);
+    .qr-section {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .qr-section img {
+      max-width: 200px;
+      width: 100%;
+      border-radius: 12px;
+    }
+
+    .qr-section a {
+      text-decoration: none;
+      font-weight: bold;
+      color: #0077cc;
+      font-size: 1.1rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem 2rem;
+    }
+
+    .full-width {
+      grid-column: 1 / 3;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.25rem;
+      font-weight: bold;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 0.6rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+
+    input[type="file"] {
+      padding: 0.4rem;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    button {
+      grid-column: 1 / 3;
+      padding: 0.75rem;
+      background-color: #0077cc;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+
+    button:hover {
+      background-color: #005fa3;
+    }
+
+    span {
+      color: red;
+    }
+
+    @media (max-width: 768px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      button {
+        grid-column: auto;
       }
     }
+  </style>
+</head>
+<body>
 
-    fetchSlots();
-  </script>
+  <form action="https://bot.tinkerwithswaroop.live/webhook-test/form" method="POST" enctype="multipart/form-data">
+    <div class="qr-section">
+      <h3>Scan to Pay</h3>
+      <img src="./assets/Payment_QR.jpeg" alt="Scan QR to Pay" />
+      <p style="margin-top: 1rem;">
+        <a href="upi://pay?pa=8310708591.kvb@ybl&pn=Swaroop%20Consultation&am=499&cu=INR" target="_blank">
+          💰 Tap here to Pay via UPI App
+        </a>
+      </p>
+    </div>
+
+    <h2>Book Your Astrology Consultation</h2>
+
+    <div class="form-grid">
+
+      <div>
+        <label for="name">Full Name<span>*</span></label>
+        <input type="text" id="name" name="Full Name" required />
+      </div>
+
+      <div>
+        <label for="phone">Phone Number<span>*</span></label>
+        <input type="tel" id="phone" name="Phone Number" required />
+      </div>
+
+      <div>
+        <label for="email">Email (optional)</label>
+        <input type="email" id="email" name="Email" />
+      </div>
+
+      <div>
+        <label for="dob">Date of Birth<span>*</span></label>
+        <input type="date" id="dob" name="Date of Birth" required />
+      </div>
+
+      <div>
+        <label for="birthTime">Birth Time<span>*</span></label>
+        <input type="text" id="birthTime" name="Birth Time" required />
+      </div>
+
+      <div>
+        <label for="birthPlace">Place of Birth<span>*</span></label>
+        <input type="text" id="birthPlace" name="Place of Birth" required />
+      </div>
+
+      <div class="full-width">
+        <label for="slot">Book Slot (Optional)</label>
+        <select id="slot" name="Book Slot">
+          <option value="">-- Select a slot --</option>
+          <!-- Will be populated from Airtable later -->
+        </select>
+      </div>
+
+      <div class="full-width">
+        <label for="topics">Topics to Discuss<span>*</span></label>
+        <textarea id="topics" name="Topics to Discuss" rows="3" required></textarea>
+      </div>
+
+      <div class="full-width">
+        <label for="payment">Upload Payment Screenshot<span>*</span></label>
+        <input type="file" id="payment" name="payment" accept="image/*" required />
+      </div>
+
+      <input type="hidden" name="SessionID" value="{{sessionID}}" />
+
+      <button type="submit">Submit</button>
+    </div>
+  </form>
+
 </body>
 </html>
