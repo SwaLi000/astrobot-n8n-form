@@ -2,181 +2,162 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Astrology Consultation Booking</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Astrology Consultation Form</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #fafafa;
+      background: #fff;
       margin: 0;
       padding: 0;
+      color: #000;
     }
-
-    form {
-      max-width: 800px;
-      margin: 2rem auto;
-      background-color: white;
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 1.5rem;
     }
-
-    h2 {
+    .qr-section {
       text-align: center;
       margin-bottom: 1.5rem;
     }
-
-    .qr-section {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-
     .qr-section img {
-      max-width: 200px;
+      max-width: 240px;
       width: 100%;
+      height: auto;
       border-radius: 12px;
     }
-
-    .qr-section a {
-      text-decoration: none;
+    .upi-link {
+      display: inline-block;
+      margin-top: 0.8rem;
       font-weight: bold;
-      color: #0077cc;
       font-size: 1.1rem;
+      color: #007bff;
+      text-decoration: none;
     }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem 2rem;
+    .upi-link:hover {
+      text-decoration: underline;
     }
-
-    .full-width {
-      grid-column: 1 / 3;
+    h2 {
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 1.8rem;
     }
-
+    form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .form-group {
+      flex: 1 1 100%;
+      display: flex;
+      flex-direction: column;
+    }
     label {
-      display: block;
-      margin-bottom: 0.25rem;
+      margin-bottom: 4px;
       font-weight: bold;
     }
-
-    input, select, textarea {
-      width: 100%;
-      padding: 0.6rem;
-      border: 1px solid #ccc;
-      border-radius: 6px;
+    input,
+    select,
+    textarea {
+      padding: 0.5rem;
       font-size: 1rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
     }
-
-    input[type="file"] {
-      padding: 0.4rem;
-    }
-
     textarea {
       resize: vertical;
+      min-height: 80px;
     }
-
-    button {
-      grid-column: 1 / 3;
-      padding: 0.75rem;
-      background-color: #0077cc;
-      color: white;
+    input[type="file"] {
+      padding: 0.3rem;
+    }
+    .submit-btn {
+      margin-top: 1.5rem;
+      padding: 0.8rem 1.5rem;
+      font-size: 1rem;
+      background: #000;
+      color: #fff;
       border: none;
       border-radius: 6px;
-      font-size: 1.1rem;
       cursor: pointer;
-      margin-top: 1rem;
+      width: 100%;
     }
-
-    button:hover {
-      background-color: #005fa3;
-    }
-
-    span {
-      color: red;
-    }
-
-    @media (max-width: 768px) {
-      .form-grid {
-        grid-template-columns: 1fr;
+    @media (min-width: 768px) {
+      .form-group.half {
+        flex: 1 1 calc(50% - 0.5rem);
       }
-
-      button {
-        grid-column: auto;
+      .submit-btn {
+        width: auto;
+        align-self: center;
       }
     }
   </style>
 </head>
 <body>
-
-  <form action="https://bot.tinkerwithswaroop.live/webhook-test/form" method="POST" enctype="multipart/form-data">
+  <div class="container">
     <div class="qr-section">
-      <h3>Scan to Pay</h3>
-      <img src="./assets/Payment_QR.jpeg" alt="Scan QR to Pay" />
-      <p style="margin-top: 1rem;">
-        <a href="upi://pay?pa=8310708591.kvb@ybl&pn=Swaroop%20Consultation&am=499&cu=INR" target="_blank">
-          💰 Tap here to Pay via UPI App
-        </a>
-      </p>
+      <img src="./assets/Payment_QR.jpeg" alt="Payment QR Code" />
+      <br />
+      <a class="upi://pay?pa=8310708591.kvb@ybl&pn=Swaroop%20Consultation&am=555&cu=INR" target="_blank">Tap here to Pay via UPI App</a>
     </div>
 
     <h2>Book Your Astrology Consultation</h2>
 
-    <div class="form-grid">
-
-      <div>
-        <label for="name">Full Name<span>*</span></label>
-        <input type="text" id="name" name="Full Name" required />
+    <form action="https://bot.tinkerwithswaroop.live/webhook-test/form" method="POST" enctype="multipart/form-data">
+      <div class="form-group half">
+        <label for="name">Full Name<span style="color:red">*</span></label>
+        <input type="text" name="Full Name" id="name" required />
       </div>
 
-      <div>
-        <label for="phone">Phone Number<span>*</span></label>
-        <input type="tel" id="phone" name="Phone Number" required />
+      <div class="form-group half">
+        <label for="phone">Phone Number<span style="color:red">*</span></label>
+        <input type="tel" name="Phone Number" id="phone" required />
       </div>
 
-      <div>
-        <label for="email">Email (optional)</label>
-        <input type="email" id="email" name="Email" />
+      <div class="form-group half">
+        <label for="email">Email <small>(optional)</small></label>
+        <input type="email" name="Email" id="email" />
       </div>
 
-      <div>
-        <label for="dob">Date of Birth<span>*</span></label>
-        <input type="date" id="dob" name="Date of Birth" required />
+      <div class="form-group half">
+        <label for="dob">Date of Birth<span style="color:red">*</span></label>
+        <input type="date" name="Date of Birth" id="dob" required />
       </div>
 
-      <div>
-        <label for="birthTime">Birth Time<span>*</span></label>
-        <input type="text" id="birthTime" name="Birth Time" required />
+      <div class="form-group half">
+        <label for="birthtime">Birth Time<span style="color:red">*</span></label>
+        <input type="text" name="Birth Time" id="birthtime" placeholder="HH:MM AM/PM" required />
       </div>
 
-      <div>
-        <label for="birthPlace">Place of Birth<span>*</span></label>
-        <input type="text" id="birthPlace" name="Place of Birth" required />
+      <div class="form-group half">
+        <label for="place">Place of Birth<span style="color:red">*</span></label>
+        <input type="text" name="Place of Birth" id="place" required />
       </div>
 
-      <div class="full-width">
+      <div class="form-group">
         <label for="slot">Book Slot (Optional)</label>
-        <select id="slot" name="Book Slot">
+        <select name="Book Slot" id="slot">
           <option value="">-- Select a slot --</option>
-          <!-- Will be populated from Airtable later -->
+          <!-- Options to be dynamically filled later -->
         </select>
       </div>
 
-      <div class="full-width">
-        <label for="topics">Topics to Discuss<span>*</span></label>
-        <textarea id="topics" name="Topics to Discuss" rows="3" required></textarea>
+      <div class="form-group">
+        <label for="topics">Topics to Discuss<span style="color:red">*</span></label>
+        <textarea name="Topics to Discuss" id="topics" required></textarea>
       </div>
 
-      <div class="full-width">
-        <label for="payment">Upload Payment Screenshot<span>*</span></label>
-        <input type="file" id="payment" name="payment" accept="image/*" required />
+      <div class="form-group">
+        <label for="screenshot">Upload Payment Screenshot<span style="color:red">*</span></label>
+        <input type="file" name="Payment Screenshot" id="screenshot" accept="image/*" required />
       </div>
 
-      <input type="hidden" name="SessionID" value="{{sessionID}}" />
-
-      <button type="submit">Submit</button>
-    </div>
-  </form>
-
+      <div class="form-group">
+        <input type="hidden" name="SessionID" value="" />
+        <button class="submit-btn" type="submit">Submit Booking</button>
+      </div>
+    </form>
+  </div>
 </body>
 </html>
