@@ -2,144 +2,89 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <title>Astrology Consultation Form</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        background: #fff;
-        margin: 0;
-        padding: 0;
-        color: #000;
-      }
-      .container {
-        max-width: 900px;
-        margin: 0 auto;
-        padding: 1.5rem;
-      }
-      .qr-section {
-        text-align: center;
-        margin-bottom: 1.5rem;
-      }
-      .qr-section img {
-        max-width: 240px;
-        width: 100%;
-        height: auto;
-        border-radius: 12px;
-      }
-      .upi-link {
-        display: inline-block;
-        margin-top: 0.8rem;
-        font-weight: bold;
-        font-size: 1.1rem;
-        color: #007bff;
-        text-decoration: none;
-      }
-      .upi-link:hover {
-        text-decoration: underline;
-      }
-      h2 {
-        text-align: center;
-        margin-bottom: 2rem;
-        font-size: 1.8rem;
-      }
-      form {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-      }
-      .form-group {
-        flex: 1 1 100%;
-        display: flex;
-        flex-direction: column;
-      }
-      label {
-        margin-bottom: 4px;
-        font-weight: bold;
-      }
-      input,
-      select,
-      textarea {
-        padding: 0.5rem;
-        font-size: 1rem;
-        border-radius: 6px;
-        border: 1px solid #ccc;
-      }
-      textarea {
-        resize: vertical;
-        min-height: 80px;
-      }
-      input[type="file"] {
-        padding: 0.3rem;
-      }
-      .submit-btn {
-        margin-top: 1.5rem;
-        padding: 0.8rem 1.5rem;
-        font-size: 1rem;
-        background: #000;
-        color: #fff;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        width: 100%;
-      }
-      @media (min-width: 768px) {
-        .form-group.half {
-          flex: 1 1 calc(50% - 0.5rem);
-        }
-        .submit-btn {
-          width: auto;
-          align-self: center;
-        }
-      }
-    </style>
+    <link rel="stylesheet" href="./styles/main.css" />
   </head>
   <body>
-    <div class="container">
-      <div class="qr-section">
+    <main class="container">
+      <section class="qr-section">
         <img src="./assets/Payment_QR.jpeg" alt="Payment QR Code" />
         <br />
         <a
-          class="upi://pay?pa=8310708591.kvb@ybl&pn=Swaroop%20Consultation&am=555&cu=INR"
-          target="_blank"
-          >Tap here to Pay via UPI App</a
+          id="upiPayBtn"
+          class="upi-link"
+          style="display: none"
+          href="upi://pay?pa=8310708591.kvb@ybl&pn=Swaroop%20Consultation&am=555&cu=INR"
         >
-      </div>
+          Tap here to Pay via UPI App
+        </a>
+        <div
+          id="upiDesktopMsg"
+          style="margin: 10px 0 0 0; font-size: 0.98em; color: #444"
+        >
+          <b>Scan this QR code using any UPI app on your phone</b>
+        </div>
+        <div id="upiIdBox" style="margin: 6px 0 0 0">
+          <span style="font-size: 0.99em; color: #345"
+            ><b>UPI ID:</b> 8310708591.kvb@ybl</span
+          >
+          <button
+            id="copyUpiBtn"
+            type="button"
+            style="
+              margin-left: 12px;
+              padding: 3px 11px;
+              font-size: 0.93em;
+              border-radius: 5px;
+              border: none;
+              background: #e6eaf0;
+              color: #003366;
+              cursor: pointer;
+            "
+          >
+            Copy
+          </button>
+          <span
+            id="copyMsg"
+            style="
+              display: none;
+              color: #16a016;
+              margin-left: 7px;
+              font-size: 0.93em;
+            "
+            >Copied!</span
+          >
+        </div>
+      </section>
 
       <h2>Book Your Astrology Consultation</h2>
-
       <form
-        action="https://bot.tinkerwithswaroop.live/webhook/form"
+        id="bookingForm"
+        action=""
         method="POST"
         enctype="multipart/form-data"
+        autocomplete="off"
       >
         <div class="form-group half">
-          <label for="name">Full Name<span style="color: red">*</span></label>
+          <label for="name">Full Name<span class="required">*</span></label>
           <input type="text" name="Full Name" id="name" required />
         </div>
-
         <div class="form-group half">
-          <label for="phone"
-            >Phone Number<span style="color: red">*</span></label
-          >
+          <label for="phone">Phone Number<span class="required">*</span></label>
           <input type="tel" name="Phone Number" id="phone" required />
         </div>
-
         <div class="form-group half">
           <label for="email">Email <small>(optional)</small></label>
           <input type="email" name="Email" id="email" />
         </div>
-
         <div class="form-group half">
-          <label for="dob"
-            >Date of Birth<span style="color: red">*</span></label
-          >
+          <label for="dob">Date of Birth<span class="required">*</span></label>
           <input type="date" name="Date of Birth" id="dob" required />
         </div>
-
         <div class="form-group half">
           <label for="birthtime"
-            >Birth Time (e.g. 04:30 PM)<span style="color: red">*</span></label
+            >Birth Time (e.g. 04:30 PM)<span class="required">*</span></label
           >
           <input
             type="text"
@@ -149,83 +94,27 @@
             required
           />
         </div>
-
         <div class="form-group half">
           <label for="place"
-            >Place of Birth<span style="color: red">*</span></label
+            >Place of Birth<span class="required">*</span></label
           >
           <input type="text" name="Place of Birth" id="place" required />
         </div>
-
         <div class="form-group full-width">
           <label for="BookSlot">Book Slot *</label>
           <select id="BookSlot" name="Book Slot" required>
             <option value="">Loading available slots...</option>
           </select>
         </div>
-
-        <script>
-          const slotLabelMap = {}; // Maps record ID → human label
-
-          async function loadAvailableSlots() {
-            try {
-              const response = await fetch(
-                "https://bot.tinkerwithswaroop.live/webhook/form"
-              );
-              const data = await response.json();
-              const slotSelect = document.getElementById("BookSlot");
-
-              slotSelect.innerHTML = '<option value="">Select a slot</option>';
-
-              data.forEach((slot) => {
-                const option = document.createElement("option");
-                option.value = slot.value; // recordId
-                option.textContent = slot.label; // human-readable slot label
-                slotLabelMap[slot.value] = slot.label;
-                slotSelect.appendChild(option);
-              });
-            } catch (err) {
-              console.error("Failed to load slots:", err);
-              document.getElementById("BookSlot").innerHTML =
-                '<option value="">No slots available</option>';
-            }
-          }
-
-          // On form ready
-          document.addEventListener("DOMContentLoaded", function () {
-            const form = document.querySelector("form");
-
-            // Create a hidden field for the readable slot label
-            const hiddenReadable = document.createElement("input");
-            hiddenReadable.type = "hidden";
-            hiddenReadable.name = "Readable Slot";
-            hiddenReadable.id = "ReadableSlot";
-            form.appendChild(hiddenReadable);
-
-            // When slot is selected, update hidden field
-            document
-              .getElementById("BookSlot")
-              .addEventListener("change", (e) => {
-                const selectedId = e.target.value;
-                document.getElementById("ReadableSlot").value =
-                  slotLabelMap[selectedId] || "";
-              });
-          });
-
-          // Load slots
-          window.addEventListener("DOMContentLoaded", loadAvailableSlots);
-        </script>
-
         <div class="form-group">
           <label for="topics"
-            >Topics to Discuss<span style="color: red">*</span></label
+            >Topics to Discuss<span class="required">*</span></label
           >
           <textarea name="Topics to Discuss" id="topics" required></textarea>
         </div>
-
         <div class="form-group">
           <label for="screenshot"
-            >Upload Payment Screenshot<span style="color: red">*</span></label
+            >Upload Payment Screenshot<span class="required">*</span></label
           >
           <input
             type="file"
@@ -235,25 +124,12 @@
             required
           />
         </div>
-
-        <div class="form-group">
-          <input type="hidden" name="SessionID" value="" />
-          <button class="submit-btn" type="submit">Submit Booking</button>
-        </div>
+        <input type="hidden" name="SessionID" id="sessionid" />
+        <button class="submit-btn" type="submit" id="bookBtn">
+          Submit Booking
+        </button>
       </form>
-    </div>
-
-    <script>
-      // Autofill fields from URL query parameters
-      const urlParams = new URLSearchParams(window.location.search);
-      const sessionID = urlParams.get("user_sessionID") || "";
-      const waNumber = urlParams.get("user_wa_number") || "";
-      const userName = urlParams.get("user_name") || "";
-
-      // Set values to the form inputs
-      document.querySelector('input[name="SessionID"]').value = sessionID;
-      document.querySelector('input[name="Phone Number"]').value = waNumber;
-      document.querySelector('input[name="Full Name"]').value = userName;
-    </script>
+    </main>
+    <script src="./scripts/main.js"></script>
   </body>
 </html>

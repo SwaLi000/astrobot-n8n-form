@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Booking Link Expired</title>
+    <link rel="stylesheet" href="./styles/main.css" />
+  </head>
+  <body>
+    <main class="box expired-box">
+      <div class="emoji">⏳</div>
+      <h2>Booking Link Expired</h2>
+      <div class="msg" id="expiredMsg"></div>
+      <div class="date-now" id="now"></div>
+    </main>
+    <script>
+      // Parse user information from URL, if present:
+      const params = new URLSearchParams(window.location.search);
+      const name =
+        params.get("name") && params.get("name") !== "..."
+          ? params.get("name")
+          : "there";
+      const waitDate =
+        params.get("waitDate") && params.get("waitDate") !== "..."
+          ? params.get("waitDate")
+          : "[the eligible date]";
+
+      // Show your warm WhatsApp-style message
+      document.getElementById("expiredMsg").textContent = `👋 Hi,
+
+We noticed that you already have an ongoing or upcoming consultation.
+
+To ensure a smooth experience for everyone, we currently allow only one booking per person at a time. 
+Please wait until your booked session is completed.
+
+Thank you for understanding and supporting fair access for all! ✨`;
+    </script>
+  </body>
+</html>
