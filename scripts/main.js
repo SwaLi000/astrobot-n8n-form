@@ -1,8 +1,8 @@
 // ========== Config ==============
 const ENDPOINT_SUBMIT = "https://bot.tinkerwithswaroop.live/webhook/form";
+const ENDPOINT_CANCEL ="https://bot.tinkerwithswaroop.live/webhook/cancellation";
 const ENDPOINT_SLOTS = "https://bot.tinkerwithswaroop.live/webhook/form";
-const ENDPOINT_VALIDATE =
-  "https://bot.tinkerwithswaroop.live/webhook/form/validate";
+const ENDPOINT_VALIDATE ="https://bot.tinkerwithswaroop.live/webhook/form/validate";
 // ================================
 
 function isMobile() {
@@ -43,7 +43,12 @@ document.addEventListener("DOMContentLoaded", function () {
   let form = bookingForm || cancellationForm;
   if (!form) return;
 
-  form.action = ENDPOINT_SUBMIT;
+  // Set correct endpoint
+  if (form === bookingForm) {
+    form.action = ENDPOINT_SUBMIT;
+  } else if (form === cancellationForm) {
+    form.action = ENDPOINT_CANCEL;
+  }
 
   // URL Params
   const urlParams = new URLSearchParams(window.location.search);
@@ -51,8 +56,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const waNumber = urlParams.get("user_wa_number") || "";
   const userName = urlParams.get("user_name") || "";
   const userEmail = urlParams.get("user_email") || "";
-  const bookedDate = urlParams.get("booked_date") || "";
-  const bookedTime = urlParams.get("booked_time") || "";
+  const bookedInfo = urlParams.get("Booked Info") || "";
 
   // === Booking Form Logic ===
   if (bookingForm) {
@@ -150,13 +154,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const bookedInfoInput = cancellationForm.querySelector(
       'input[name="Booked Info"]'
     );
-    const bookedInfo = urlParams.get("Booked Info") || "";
-
-    if (bookedInfoInput) {
-      bookedInfoInput.value = bookedInfo;
-      bookedInfoInput.setAttribute("readonly", "readonly");
-      bookedInfoInput.setAttribute("tabindex", "-1");
-    }
 
     if (nameInput) {
       nameInput.value = userName;
@@ -170,6 +167,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     if (sessionInput) {
       sessionInput.value = sessionID;
+    }
+    if (bookedInfoInput) {
+      bookedInfoInput.value = bookedInfo;
+      bookedInfoInput.setAttribute("readonly", "readonly");
+      bookedInfoInput.setAttribute("tabindex", "-1");
     }
   }
 
