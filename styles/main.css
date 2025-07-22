@@ -194,5 +194,6 @@ input[type="file"] {
   background: #d3e6f5;
   color: #005580;
 }
-#upiIdBox { margin-top: 6px; }
-
+#upiIdBox {
+  margin-top: 6px;
+}

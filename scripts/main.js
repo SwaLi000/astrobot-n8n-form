@@ -3,9 +3,8 @@ const ENDPOINT_SUBMIT = "https://bot.tinkerwithswaroop.live/webhook/form";
 const ENDPOINT_SLOTS = "https://bot.tinkerwithswaroop.live/webhook/form";
 const ENDPOINT_VALIDATE =
   "https://bot.tinkerwithswaroop.live/webhook/form/validate";
-// ==========
+// ================================
 
-// Device-adaptive UPI logic & copy functionality
 function isMobile() {
   return /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(
     navigator.userAgent
@@ -13,7 +12,7 @@ function isMobile() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-  // UPI mobile/desktop logic
+  // UPI Pay section (Booking form only)
   const upiBtn = document.getElementById("upiPayBtn");
   const desktopMsg = document.getElementById("upiDesktopMsg");
   if (isMobile()) {
@@ -24,7 +23,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (desktopMsg) desktopMsg.style.display = "block";
   }
 
-  // Copy UPI ID logic
+  // Copy UPI ID
   const copyBtn = document.getElementById("copyUpiBtn");
   const copyMsg = document.getElementById("copyMsg");
   if (copyBtn) {
@@ -38,93 +37,154 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Set form action from config!
-  const form =
-    document.getElementById("bookingForm") || document.querySelector("form");
-  if (form) {
-    form.action = ENDPOINT_SUBMIT;
-  }
+  // Determine which form is being used
+  const bookingForm = document.getElementById("bookingForm");
+  const cancellationForm = document.getElementById("cancellationForm");
+  let form = bookingForm || cancellationForm;
+  if (!form) return;
 
-  // 1. Autofill fields from URL params
+  form.action = ENDPOINT_SUBMIT;
+
+  // URL Params
   const urlParams = new URLSearchParams(window.location.search);
   const sessionID = urlParams.get("user_sessionID") || "";
   const waNumber = urlParams.get("user_wa_number") || "";
   const userName = urlParams.get("user_name") || "";
-  const sessionInput = document.querySelector('input[name="SessionID"]');
-  if (sessionInput) sessionInput.value = sessionID;
-  const phoneInput = document.querySelector('input[name="Phone Number"]');
-  if (phoneInput) phoneInput.value = waNumber;
-  const nameInput = document.querySelector('input[name="Full Name"]');
-  if (nameInput) nameInput.value = userName;
+  const userEmail = urlParams.get("user_email") || "";
+  const bookedDate = urlParams.get("booked_date") || "";
+  const bookedTime = urlParams.get("booked_time") || "";
 
-  // 2. Load slots into dropdown
-  const slotLabelMap = {};
-  async function loadAvailableSlots() {
-    try {
-      const response = await fetch(ENDPOINT_SLOTS);
-      const data = await response.json();
-      const slotSelect = document.getElementById("BookSlot");
-      slotSelect.innerHTML = '<option value="">Select a slot</option>';
-      data.forEach((slot) => {
-        const option = document.createElement("option");
-        option.value = slot.value;
-        option.textContent = slot.label;
-        slotLabelMap[slot.value] = slot.label;
-        slotSelect.appendChild(option);
-      });
-    } catch (err) {
-      console.error("Failed to load slots:", err);
-      const slotSelect = document.getElementById("BookSlot");
-      if (slotSelect)
-        slotSelect.innerHTML = '<option value="">No slots available</option>';
-    }
-  }
-  loadAvailableSlots();
+  // === Booking Form Logic ===
+  if (bookingForm) {
+    const sessionInput = bookingForm.querySelector('input[name="SessionID"]');
+    const phoneInput = bookingForm.querySelector('input[name="Phone Number"]');
+    const nameInput = bookingForm.querySelector('input[name="Full Name"]');
+    const emailInput = bookingForm.querySelector('input[name="Email"]');
 
-  // 3. Hidden readable slot
-  if (form) {
-    const hiddenReadable = document.createElement("input");
-    hiddenReadable.type = "hidden";
-    hiddenReadable.name = "Readable Slot";
-    hiddenReadable.id = "ReadableSlot";
-    form.appendChild(hiddenReadable);
-    document.getElementById("BookSlot").addEventListener("change", (e) => {
-      const selectedId = e.target.value;
-      document.getElementById("ReadableSlot").value =
-        slotLabelMap[selectedId] || "";
-    });
-  }
+    if (sessionInput) sessionInput.value = sessionID;
+    if (phoneInput) phoneInput.value = waNumber;
+    if (nameInput) nameInput.value = userName;
+    if (emailInput) emailInput.value = userEmail;
 
-  // 4. Eligibility check on page load (before user can interact)
-  (async function () {
-    if (waNumber && sessionID) {
+    const slotLabelMap = {};
+    async function loadAvailableSlots() {
       try {
-        const res = await fetch(
-          ENDPOINT_VALIDATE +
-            "?user_wa_number=" +
-            encodeURIComponent(waNumber) +
-            "&user_sessionID=" +
-            encodeURIComponent(sessionID)
-        );
-        const data = await res.json();
-        if (data && data.allowed === false) {
-          let expiredParams = new URLSearchParams();
-          if (data.name) expiredParams.set("name", data.name);
-          if (data.slot) expiredParams.set("slot", data.slot);
-          if (data.waitDate) expiredParams.set("waitDate", data.waitDate);
-          if (data.message) expiredParams.set("msg", data.message);
-          window.location.href = "/expired.html?" + expiredParams.toString();
+        const response = await fetch(ENDPOINT_SLOTS);
+        const data = await response.json();
+        const slotSelect = document.getElementById("BookSlot");
+        if (!slotSelect) return;
+        slotSelect.innerHTML = '<option value="">Select a slot</option>';
+        data.forEach((slot) => {
+          const option = document.createElement("option");
+          option.value = slot.value;
+          option.textContent = slot.label;
+          slotLabelMap[slot.value] = slot.label;
+          slotSelect.appendChild(option);
+        });
+      } catch (err) {
+        console.error("Failed to load slots:", err);
+        const slotSelect = document.getElementById("BookSlot");
+        if (slotSelect) {
+          slotSelect.innerHTML = '<option value="">No slots available</option>';
         }
-      } catch (e) {
-        console.warn("Eligibility API failed", e);
       }
     }
-  })();
+    loadAvailableSlots();
 
-  // 5. Prevent rapid resubmits (disable submit button during submission)
+    // Add hidden readable slot
+    const hiddenReadableExists =
+      !!bookingForm.querySelector("input#ReadableSlot");
+    if (!hiddenReadableExists) {
+      const hiddenReadable = document.createElement("input");
+      hiddenReadable.type = "hidden";
+      hiddenReadable.name = "Readable Slot";
+      hiddenReadable.id = "ReadableSlot";
+      bookingForm.appendChild(hiddenReadable);
+    }
+
+    const bookSlotElt = document.getElementById("BookSlot");
+    if (bookSlotElt) {
+      bookSlotElt.addEventListener("change", (e) => {
+        const selectedId = e.target.value;
+        document.getElementById("ReadableSlot").value =
+          slotLabelMap[selectedId] || "";
+      });
+    }
+
+    // Eligibility check
+    (async function () {
+      if (waNumber && sessionID) {
+        try {
+          const res = await fetch(
+            ENDPOINT_VALIDATE +
+              "?user_wa_number=" +
+              encodeURIComponent(waNumber) +
+              "&user_sessionID=" +
+              encodeURIComponent(sessionID)
+          );
+          const data = await res.json();
+          if (data && data.allowed === false) {
+            let expiredParams = new URLSearchParams();
+            if (data.name) expiredParams.set("name", data.name);
+            if (data.slot) expiredParams.set("slot", data.slot);
+            if (data.waitDate) expiredParams.set("waitDate", data.waitDate);
+            if (data.message) expiredParams.set("msg", data.message);
+            window.location.href = "/expired.html?" + expiredParams.toString();
+          }
+        } catch (e) {
+          console.warn("Eligibility API failed", e);
+        }
+      }
+    })();
+  }
+
+  // === Cancellation Form Logic ===
+  if (cancellationForm) {
+    const nameInput = cancellationForm.querySelector('input[name="Full Name"]');
+    const phoneInput = cancellationForm.querySelector(
+      'input[name="Phone Number"]'
+    );
+    const sessionInput = cancellationForm.querySelector(
+      'input[name="SessionID"]'
+    );
+    const bookedDateInput = cancellationForm.querySelector(
+      'input[name="Booked Date"]'
+    );
+    const bookedTimeInput = cancellationForm.querySelector(
+      'input[name="Booked Time"]'
+    );
+
+    if (nameInput) {
+      nameInput.value = userName;
+      nameInput.setAttribute("readonly", "readonly");
+      nameInput.setAttribute("tabindex", "-1");
+    }
+    if (phoneInput) {
+      phoneInput.value = waNumber;
+      phoneInput.setAttribute("readonly", "readonly");
+      phoneInput.setAttribute("tabindex", "-1");
+    }
+    if (sessionInput) {
+      sessionInput.value = sessionID;
+    }
+    if (bookedDateInput) {
+      bookedDateInput.value = bookedDate;
+      bookedDateInput.setAttribute("readonly", "readonly");
+      bookedDateInput.setAttribute("tabindex", "-1");
+    }
+    if (bookedTimeInput) {
+      bookedTimeInput.value = bookedTime;
+      bookedTimeInput.setAttribute("readonly", "readonly");
+      bookedTimeInput.setAttribute("tabindex", "-1");
+    }
+  }
+
+  // Submit button disable (all forms)
   if (form) {
-    form.addEventListener("submit", function (e) {
-      const btn = document.getElementById("bookBtn");
+    form.addEventListener("submit", function () {
+      let btnId = "bookBtn";
+      if (cancellationForm) btnId = "cancelBtn";
+      const btn = document.getElementById(btnId);
       if (btn) btn.disabled = true;
       setTimeout(() => {
         if (btn) btn.disabled = false;
