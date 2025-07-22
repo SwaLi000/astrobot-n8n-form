@@ -147,12 +147,16 @@ document.addEventListener("DOMContentLoaded", function () {
     const sessionInput = cancellationForm.querySelector(
       'input[name="SessionID"]'
     );
-    const bookedDateInput = cancellationForm.querySelector(
-      'input[name="Booked Date"]'
+    const bookedInfoInput = cancellationForm.querySelector(
+      'input[name="Booked Info"]'
     );
-    const bookedTimeInput = cancellationForm.querySelector(
-      'input[name="Booked Time"]'
-    );
+    const bookedInfo = urlParams.get("Booked Info") || "";
+
+    if (bookedInfoInput) {
+      bookedInfoInput.value = bookedInfo;
+      bookedInfoInput.setAttribute("readonly", "readonly");
+      bookedInfoInput.setAttribute("tabindex", "-1");
+    }
 
     if (nameInput) {
       nameInput.value = userName;
@@ -166,16 +170,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     if (sessionInput) {
       sessionInput.value = sessionID;
-    }
-    if (bookedDateInput) {
-      bookedDateInput.value = bookedDate;
-      bookedDateInput.setAttribute("readonly", "readonly");
-      bookedDateInput.setAttribute("tabindex", "-1");
-    }
-    if (bookedTimeInput) {
-      bookedTimeInput.value = bookedTime;
-      bookedTimeInput.setAttribute("readonly", "readonly");
-      bookedTimeInput.setAttribute("tabindex", "-1");
     }
   }
 
