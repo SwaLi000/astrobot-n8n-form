@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cancellation Link Expired</title>
+    <link rel="stylesheet" href="./styles/main.css" />
+  </head>
+  <body>
+    <main class="box expired-box">
+      <div class="emoji">🚫</div>
+      <h2>Cancellation Link Expired</h2>
+      <div class="msg" id="expiredMsg">
+        This cancellation request cannot be processed. You may have already submitted two requests, or the session is too close to cancel.
+      </div>
+      <div class="details" style="margin-top: 1.5rem; text-align: left">
+        <strong>Name:</strong> <span id="name">...</span><br />
+        <strong>Slot:</strong> <span id="slot">...</span>
+      </div>
+    </main>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const params = new URLSearchParams(window.location.search);
+        const name = params.get("name");
+        const slot = params.get("slot");
+        const msg = params.get("msg");
+
+        if (name) document.getElementById("name").textContent = decodeURIComponent(name);
+        if (slot) document.getElementById("slot").textContent = decodeURIComponent(slot);
+        if (msg) document.getElementById("expiredMsg").textContent = decodeURIComponent(msg);
+      });
+    </script>
+  </body>
+</html>

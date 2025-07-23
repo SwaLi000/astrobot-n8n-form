@@ -1,10 +1,10 @@
-// ========== Config ==============
+// ========== FINAL main.js (with Cancellation Link Validation) =============
+
 const ENDPOINT_SUBMIT = "https://bot.tinkerwithswaroop.live/webhook/form";
 const ENDPOINT_CANCEL = "https://bot.tinkerwithswaroop.live/webhook/cancellation";
 const ENDPOINT_SLOTS = "https://bot.tinkerwithswaroop.live/webhook/form";
 const ENDPOINT_VALIDATE = "https://bot.tinkerwithswaroop.live/webhook/form/validate";
 const ENDPOINT_CANCEL_VALIDATE = "https://bot.tinkerwithswaroop.live/webhook/form/cancel/validate";
-// ================================
 
 function isMobile() {
   return /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(
@@ -13,7 +13,6 @@ function isMobile() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-  // UPI Pay section (Booking form only)
   const upiBtn = document.getElementById("upiPayBtn");
   const desktopMsg = document.getElementById("upiDesktopMsg");
   if (isMobile()) {
@@ -24,7 +23,6 @@ document.addEventListener("DOMContentLoaded", function () {
     if (desktopMsg) desktopMsg.style.display = "block";
   }
 
-  // Copy UPI ID
   const copyBtn = document.getElementById("copyUpiBtn");
   const copyMsg = document.getElementById("copyMsg");
   if (copyBtn) {
@@ -38,13 +36,12 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Determine which form is being used
   const bookingForm = document.getElementById("bookingForm");
   const cancellationForm = document.getElementById("cancellationForm");
   let form = bookingForm || cancellationForm;
   if (!form) return;
 
-  // Set correct endpoint
+  // Set correct form action
   if (form === bookingForm) {
     form.action = ENDPOINT_SUBMIT;
   } else if (form === cancellationForm) {
@@ -96,7 +93,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     loadAvailableSlots();
 
-    // Add hidden readable slot
     const hiddenReadableExists =
       !!bookingForm.querySelector("input#ReadableSlot");
     if (!hiddenReadableExists) {
@@ -116,7 +112,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     }
 
-    // Eligibility check for booking
+    // Eligibility check (Booking)
     (async function () {
       if (waNumber && sessionID) {
         try {
@@ -146,9 +142,15 @@ document.addEventListener("DOMContentLoaded", function () {
   // === Cancellation Form Logic ===
   if (cancellationForm) {
     const nameInput = cancellationForm.querySelector('input[name="Full Name"]');
-    const phoneInput = cancellationForm.querySelector('input[name="Phone Number"]');
-    const sessionInput = cancellationForm.querySelector('input[name="SessionID"]');
-    const bookedInfoInput = cancellationForm.querySelector('input[name="Booked Info"]');
+    const phoneInput = cancellationForm.querySelector(
+      'input[name="Phone Number"]'
+    );
+    const sessionInput = cancellationForm.querySelector(
+      'input[name="SessionID"]'
+    );
+    const bookedInfoInput = cancellationForm.querySelector(
+      'input[name="Booked Info"]'
+    );
 
     if (nameInput) {
       nameInput.value = userName;
@@ -169,12 +171,13 @@ document.addEventListener("DOMContentLoaded", function () {
       bookedInfoInput.setAttribute("tabindex", "-1");
     }
 
-    // Cancellation link validation
+    // Eligibility check (Cancellation)
+    // === Cancellation Eligibility Check ===
     (async function () {
       if (waNumber && sessionID) {
         try {
           const res = await fetch(
-            ENDPOINT_CANCEL_VALIDATE +
+            "https://bot.tinkerwithswaroop.live/webhook-test/form/cancel/validate" +
               "?user_wa_number=" +
               encodeURIComponent(waNumber) +
               "&user_sessionID=" +
@@ -186,16 +189,23 @@ document.addEventListener("DOMContentLoaded", function () {
             if (data.name) expiredParams.set("name", data.name);
             if (data.slot) expiredParams.set("slot", data.slot);
             if (data.message) expiredParams.set("msg", data.message);
-            window.location.href = "/expired.html?" + expiredParams.toString();
+            window.location.href =
+              "/cancellation_link_expired.html?" + expiredParams.toString();
           }
         } catch (e) {
-          console.warn("Cancellation validation failed", e);
+          console.warn("Cancellation validation API failed", e);
         }
       }
     })();
+
+    if (data && data.warning) {
+      const warningBox = document.createElement("div");
+      warningBox.className = "warning-banner";
+      warningBox.textContent = data.warning;
+      document.querySelector("main")?.prepend(warningBox);
+    }
   }
 
-  // Submit button disable (all forms)
   if (form) {
     form.addEventListener("submit", function () {
       let btnId = "bookBtn";
