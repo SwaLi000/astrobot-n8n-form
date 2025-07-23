@@ -1,8 +1,9 @@
 // ========== Config ==============
 const ENDPOINT_SUBMIT = "https://bot.tinkerwithswaroop.live/webhook/form";
-const ENDPOINT_CANCEL ="https://bot.tinkerwithswaroop.live/webhook/cancellation";
+const ENDPOINT_CANCEL = "https://bot.tinkerwithswaroop.live/webhook/cancellation";
 const ENDPOINT_SLOTS = "https://bot.tinkerwithswaroop.live/webhook/form";
-const ENDPOINT_VALIDATE ="https://bot.tinkerwithswaroop.live/webhook/form/validate";
+const ENDPOINT_VALIDATE = "https://bot.tinkerwithswaroop.live/webhook/form/validate";
+const ENDPOINT_CANCEL_VALIDATE = "https://bot.tinkerwithswaroop.live/webhook/form/cancel/validate";
 // ================================
 
 function isMobile() {
@@ -115,7 +116,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     }
 
-    // Eligibility check
+    // Eligibility check for booking
     (async function () {
       if (waNumber && sessionID) {
         try {
@@ -145,15 +146,9 @@ document.addEventListener("DOMContentLoaded", function () {
   // === Cancellation Form Logic ===
   if (cancellationForm) {
     const nameInput = cancellationForm.querySelector('input[name="Full Name"]');
-    const phoneInput = cancellationForm.querySelector(
-      'input[name="Phone Number"]'
-    );
-    const sessionInput = cancellationForm.querySelector(
-      'input[name="SessionID"]'
-    );
-    const bookedInfoInput = cancellationForm.querySelector(
-      'input[name="Booked Info"]'
-    );
+    const phoneInput = cancellationForm.querySelector('input[name="Phone Number"]');
+    const sessionInput = cancellationForm.querySelector('input[name="SessionID"]');
+    const bookedInfoInput = cancellationForm.querySelector('input[name="Booked Info"]');
 
     if (nameInput) {
       nameInput.value = userName;
@@ -173,6 +168,31 @@ document.addEventListener("DOMContentLoaded", function () {
       bookedInfoInput.setAttribute("readonly", "readonly");
       bookedInfoInput.setAttribute("tabindex", "-1");
     }
+
+    // Cancellation link validation
+    (async function () {
+      if (waNumber && sessionID) {
+        try {
+          const res = await fetch(
+            ENDPOINT_CANCEL_VALIDATE +
+              "?user_wa_number=" +
+              encodeURIComponent(waNumber) +
+              "&user_sessionID=" +
+              encodeURIComponent(sessionID)
+          );
+          const data = await res.json();
+          if (data && data.allowed === false) {
+            let expiredParams = new URLSearchParams();
+            if (data.name) expiredParams.set("name", data.name);
+            if (data.slot) expiredParams.set("slot", data.slot);
+            if (data.message) expiredParams.set("msg", data.message);
+            window.location.href = "/expired.html?" + expiredParams.toString();
+          }
+        } catch (e) {
+          console.warn("Cancellation validation failed", e);
+        }
+      }
+    })();
   }
 
   // Submit button disable (all forms)
